@@ -1,0 +1,102 @@
+LICENCA DE SOFTWARE PROPRIETARIO
+PROPRIETARY SOFTWARE LICENSE
+
+CredGestor
+Sistema Profissional de Gestao de Credito
+
+Titular dos direitos:
+Carlos Antonio de Oliveira Piquet
+
+Esta versao do texto foi mantida em ASCII para compatibilidade com o
+instalador do Windows. Os termos juridicos correspondem a licenca
+principal do projeto, disponivel no arquivo LICENSE.
+
+1. PROPRIEDADE INTELECTUAL
+
+Este software, incluindo codigo-fonte, binarios compilados, bibliotecas,
+documentacao tecnica, interfaces graficas, icones, logotipos, nomes
+comerciais, bases de dados, algoritmos, arquitetura de sistema e qualquer
+material derivado, e propriedade intelectual exclusiva de Carlos Antonio
+de Oliveira Piquet.
+
+Todos os direitos sao reservados, conforme protegido pela Lei 9.609/98
+(Lei do Software), Lei 9.610/98 (Lei de Direitos Autorais) e tratados
+internacionais aplicaveis.
+
+2. DIREITOS EXCLUSIVOS DO PROPRIETARIO
+
+O proprietario detem, de forma exclusiva e irrevogavel, os direitos de
+reproducao, distribuicao, comercializacao, sublicenciamento, modificacao,
+adaptacao, criacao de obras derivadas, exibicao, demonstracao, compilacao,
+analise tecnica, utilizacao em qualquer plataforma, transferencia, cessao
+ou licenciamento a terceiros.
+
+3. RESTRICOES
+
+Sem autorizacao previa, expressa e por escrito do proprietario, e
+estritamente proibido:
+
+- Copiar, reproduzir ou duplicar o software, no todo ou em parte.
+- Distribuir, compartilhar, sublicenciar ou transferir o software.
+- Modificar, adaptar, traduzir ou criar obras derivadas.
+- Realizar engenharia reversa, descompilacao ou desmontagem.
+- Remover, alterar ou ocultar avisos de propriedade ou copyright.
+- Utilizar o software para fins comerciais sem licenciamento.
+- Incorporar partes do codigo em outros projetos ou produtos.
+- Hospedar, publicar ou disponibilizar o software em repositorios
+  publicos ou privados acessiveis a terceiros nao autorizados.
+- Utilizar o nome, marca ou identidade visual do software sem permissao.
+
+4. LICENCA DE USO
+
+Qualquer licenca de uso concedida pelo proprietario sera pessoal,
+intransferivel, nao exclusiva salvo acordo em contrario, limitada ao
+numero de instalacoes e usuarios especificados, valida pelo periodo
+contratado e revogavel em caso de violacao destes termos.
+
+5. CONFIDENCIALIDADE
+
+O codigo-fonte, algoritmos, estrutura de banco de dados, chaves de API,
+credenciais de acesso e qualquer informacao tecnica contida no software
+sao informacoes confidenciais do proprietario.
+
+6. GARANTIAS E LIMITACAO DE RESPONSABILIDADE
+
+O software e fornecido "COMO ESTA" (AS IS). O proprietario nao oferece
+garantias expressas ou implicitas quanto a adequacao a um proposito
+especifico, comerciabilidade, precisao dos resultados ou ausencia de
+defeitos. Em nenhuma hipotese o proprietario sera responsavel por danos
+diretos, indiretos, incidentais, especiais, consequenciais ou punitivos
+decorrentes do uso ou impossibilidade de uso do software.
+
+7. VIGENCIA
+
+Esta licenca entra em vigor na data de criacao do software e permanece
+valida por tempo indeterminado, enquanto subsistirem os direitos autorais
+nos termos da legislacao aplicavel.
+
+8. PENALIDADES
+
+A violacao de quaisquer termos desta licenca sujeitara o infrator a
+responsabilidade civil, responsabilidade criminal nos termos da Lei
+9.609/98, indenizacao por danos morais e materiais e medidas judiciais
+cabiveis.
+
+9. FORO
+
+Fica eleito o foro da comarca de domicilio do proprietario, na Republica
+Federativa do Brasil, para dirimir quaisquer controversias decorrentes
+desta licenca.
+
+10. DISPOSICOES FINAIS
+
+Esta licenca constitui o acordo integral entre as partes. A invalidade de
+qualquer clausula nao afetara as demais. A tolerancia do proprietario
+quanto a qualquer violacao nao implica renuncia aos seus direitos.
+
+Copyright (C) 2024-2026 Carlos Antonio de Oliveira Piquet
+TODOS OS DIREITOS RESERVADOS / ALL RIGHTS RESERVED
+
+No part of this software may be reproduced, distributed, or transmitted
+in any form or by any means without the prior written permission of the
+copyright holder.

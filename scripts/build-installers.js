@@ -501,7 +501,7 @@ async function buildNsisInstaller() {
         shortcutName: 'CredGestor',
         installerIcon: path.join(ROOT, 'assets', 'icon.ico'),
         uninstallerIcon: path.join(ROOT, 'assets', 'icon.ico'),
-        license: path.join(ROOT, 'LICENSE'),
+        license: path.join(ROOT, 'installer', 'LICENSE-NSIS.txt'),
       },
     },
   }));

@@ -1,6 +1,6 @@
 # Documentacao Tecnica e Arquitetural - CredGestor
 
-**Versao:** 6.0.1
+**Versao:** 6.0.2
 **Plataforma:** Windows x64  
 **Licenca:** Proprietaria  
 **Status:** Release offline local com atualizacao remota por GitHub Releases
@@ -178,12 +178,12 @@ npm run pack:inno
 npm run build:release
 ```
 
-Artefatos oficiais da versao 6.0.1:
+Artefatos oficiais da versao 6.0.2:
 
 ```text
-dist/CredGestor-InnoSetup-6.0.1.exe
-dist/CredGestor-Setup-6.0.1.exe
-dist/CredGestor-Setup-6.0.1.exe.blockmap
+dist/CredGestor-InnoSetup-6.0.2.exe
+dist/CredGestor-Setup-6.0.2.exe
+dist/CredGestor-Setup-6.0.2.exe.blockmap
 dist/latest.yml
 ```
 
@@ -218,7 +218,7 @@ O auto-update usa:
 Fluxo:
 
 ```text
-git tag v6.0.1
+git tag v6.0.2
 git push origin main --tags
 GitHub Actions gera NSIS + latest.yml
 GitHub Release recebe os artefatos
@@ -253,8 +253,8 @@ Resultado esperado:
 - `npm audit`: 0 vulnerabilidades.
 - `npm run qa`: 100/100.
 - Testes backend: pass.
-- Instalador Inno gerado com nome `CredGestor-InnoSetup-6.0.1.exe`.
-- Instalador NSIS/update gerado com nome `CredGestor-Setup-6.0.1.exe`.
+- Instalador Inno gerado com nome `CredGestor-InnoSetup-6.0.2.exe`.
+- Instalador NSIS/update gerado com nome `CredGestor-Setup-6.0.2.exe`.
 
 Para validar rapidamente a execucao local apos mudancas de interface:
 
