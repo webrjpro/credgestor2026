@@ -1,0 +1,114 @@
+{
+  "name": "credgestor",
+  "version": "6.0.0",
+  "description": "CredGestor - Sistema Profissional de Gestao de Credito para Windows",
+  "main": "main.js",
+  "private": true,
+  "workspaces": [
+    "backend"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Carlos Antonio de Oliveira Piquet",
+    "email": "contato@credgestor.com"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node scripts/start-electron.js",
+    "dev": "node scripts/start-electron.js --dev",
+    "build:renderer": "node scripts/build-renderer.js",
+    "build": "node scripts/build-installers.js --target=dir",
+    "build:dir": "node scripts/build-installers.js --target=dir",
+    "build:nsis": "node scripts/build-installers.js --target=nsis",
+    "pack": "npm run pack:inno",
+    "pack:prepare": "node scripts/build-installers.js --target=dir",
+    "pack:inno": "node scripts/build-installers.js --target=inno",
+    "pack:nsis": "node scripts/build-installers.js --target=nsis",
+    "pack:all": "node scripts/build-installers.js --target=all",
+    "portable": "node scripts/make-portable.js",
+    "version:sync": "node scripts/sync-version.js",
+    "lint": "eslint . --ext .js",
+    "qa": "node scripts/qa-audit.js"
+  },
+  "dependencies": {
+    "@e965/xlsx": "^0.20.3",
+    "chart.js": "^4.5.1",
+    "file-saver": "^2.0.5",
+    "jspdf": "^4.2.1",
+    "jszip": "^3.10.1",
+    "lucide": "^0.564.0"
+  },
+  "devDependencies": {
+    "electron": "^41.5.0",
+    "electron-builder": "^26.8.1",
+    "esbuild": "^0.28.1",
+    "eslint": "^8.57.1",
+    "tailwindcss": "^3.4.19"
+  },
+  "overrides": {
+    "dompurify": "^3.4.1"
+  },
+  "build": {
+    "appId": "com.credgestor.desktop",
+    "productName": "CredGestor",
+    "copyright": "Copyright Carlos Antonio de Oliveira Piquet",
+    "asar": true,
+    "files": [
+      "index.html",
+      "main.js",
+      "main/**/*",
+      "offline-services.js",
+      "preload.js",
+      "js/**/*",
+      "dist-renderer/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!data/**",
+          "!.env",
+          "!.env.local",
+          "!node_modules/credgestor/**"
+        ]
+      },
+      {
+        "from": ".tools/node-v22.22.2-win-x64",
+        "to": "node-runtime/win-x64"
+      }
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "CredGestor-Setup-${version}.${ext}",
+      "signAndEditExecutable": false,
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "shortcutName": "CredGestor"
+    }
+  }
+}

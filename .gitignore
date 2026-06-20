@@ -1,0 +1,90 @@
+# ══════════════════════════════════════════════════════════════
+# CredGestor — .gitignore
+# App Windows x64 | Electron 41+ | Node.js | SQLite
+# ══════════════════════════════════════════════════════════════
+
+# ── Dependências ──────────────────────────────────────────────
+node_modules/
+backend/node_modules/
+
+# ── Build outputs (gerados automaticamente — não commitar) ────
+dist/
+dist-renderer/
+dist-portable/
+dist-debug/
+dist-fresh/
+out/
+release/
+build/
+*.exe
+*.blockmap
+
+# ── Node.js Runtime Embarcado (binário grande — não commitar) ─
+# Adicione manualmente na máquina de build via INSTRUCOES_NOVA_MAQUINA.md
+.tools/
+
+# ── Banco de dados (cada instalação tem o seu) ────────────────
+*.db
+*.db-shm
+*.db-wal
+backend/data/
+
+# ── Segurança — NUNCA commitar segredos ───────────────────────
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Chave JWT persistente (gerada em runtime pelo Electron)
+.jwt_secret
+
+# Keystores e certificados
+*.keystore
+*.p12
+*.pfx
+*.pem
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ── Artefatos temporários de build/recovery ───────────────────
+tmp_*/
+recovery_db_*/
+*-Source-Producao.zip
+*-Source-Producao/
+
+# ── OS ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ── IDEs e editores ───────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ── Cache e temporários ───────────────────────────────────────
+.cache/
+.tmp/
+.eslintcache
+.parcelcache/
+
+# ── Testes ────────────────────────────────────────────────────
+test-results/
+playwright-report/
+
+# ── Outros ignorados residuais ────────────────────────────────
+iscc_log*.txt
+builder-debug.yml

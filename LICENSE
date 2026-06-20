@@ -1,0 +1,166 @@
+════════════════════════════════════════════════════════════════════════════════
+                        LICENÇA DE SOFTWARE PROPRIETÁRIO
+                         PROPRIETARY SOFTWARE LICENSE
+════════════════════════════════════════════════════════════════════════════════
+
+                       CredGestor v6.0.0
+                    Sistema Profissional de Gestão de Crédito
+                    Revisão documental: 20/06/2026
+
+════════════════════════════════════════════════════════════════════════════════
+
+TITULAR DOS DIREITOS / COPYRIGHT HOLDER:
+
+    Nome:       Carlos Antonio de Oliveira Piquet
+    Função:     Desenvolvedor e Proprietário Único
+    Jurisdição: República Federativa do Brasil
+
+════════════════════════════════════════════════════════════════════════════════
+
+                      TERMOS E CONDIÇÕES DE LICENCIAMENTO
+
+════════════════════════════════════════════════════════════════════════════════
+
+1. PROPRIEDADE INTELECTUAL
+
+   Este software, incluindo mas não limitado a todo o código-fonte, binários
+   compilados, bibliotecas, documentação técnica, interfaces gráficas, ícones,
+   logotipos, nomes comerciais, bases de dados, algoritmos, arquitetura de
+   sistema e qualquer material derivado (doravante denominado "Software"), é
+   propriedade intelectual exclusiva de:
+
+       CARLOS ANTONIO DE OLIVEIRA PIQUET
+       (doravante denominado "Proprietário")
+
+   Todos os direitos são reservados, conforme protegido pela Lei nº 9.609/98
+   (Lei do Software), Lei nº 9.610/98 (Lei de Direitos Autorais) e tratados
+   internacionais aplicáveis, incluindo a Convenção de Berna e o Acordo TRIPS.
+
+2. DIREITOS EXCLUSIVOS DO PROPRIETÁRIO
+
+   O Proprietário detém, de forma exclusiva e irrevogável, os seguintes
+   direitos sobre o Software:
+
+   a) Direito de reprodução total ou parcial;
+   b) Direito de distribuição, comercialização e sublicenciamento;
+   c) Direito de modificação, adaptação e criação de obras derivadas;
+   d) Direito de exibição pública e demonstração;
+   e) Direito de compilação, descompilação e análise técnica;
+   f) Direito de utilização em qualquer meio, plataforma ou dispositivo;
+   g) Direito de transferência, cessão ou licenciamento a terceiros;
+   h) Direito de registro de marca e patente sobre componentes do Software.
+
+3. RESTRIÇÕES
+
+   Sem a autorização prévia, expressa e por escrito do Proprietário, é
+   ESTRITAMENTE PROIBIDO:
+
+   a) Copiar, reproduzir ou duplicar o Software, no todo ou em parte;
+   b) Distribuir, compartilhar, sublicenciar ou transferir o Software;
+   c) Modificar, adaptar, traduzir ou criar obras derivadas;
+   d) Realizar engenharia reversa, descompilação ou desmontagem;
+   e) Remover, alterar ou ocultar avisos de propriedade ou copyright;
+   f) Utilizar o Software para fins comerciais sem licenciamento;
+   g) Incorporar partes do código em outros projetos ou produtos;
+   h) Hospedar, publicar ou disponibilizar o Software em repositórios
+      públicos ou privados acessíveis a terceiros não autorizados;
+   i) Utilizar o nome, marca ou identidade visual do Software sem permissão.
+
+4. LICENÇA DE USO (quando concedida)
+
+   Qualquer licença de uso concedida pelo Proprietário será:
+
+   a) Pessoal, intransferível e não exclusiva (salvo acordo em contrário);
+   b) Limitada ao número de instalações e usuários especificados;
+   c) Válida pelo período estipulado no instrumento de licenciamento;
+   d) Revogável a qualquer momento por violação destes termos;
+   e) Regida pelas condições específicas do contrato de licenciamento.
+
+5. CONFIDENCIALIDADE
+
+   O código-fonte, algoritmos, estrutura de banco de dados, chaves de API,
+   credenciais de acesso e qualquer informação técnica contida no Software
+   são considerados INFORMAÇÕES CONFIDENCIAIS do Proprietário, protegidas
+   por sigilo empresarial e dever de confidencialidade.
+
+6. GARANTIAS E LIMITAÇÃO DE RESPONSABILIDADE
+
+   O Software é fornecido "COMO ESTÁ" (AS IS). O Proprietário não oferece
+   garantias expressas ou implícitas quanto à adequação a um propósito
+   específico, comerciabilidade, precisão dos resultados ou ausência de
+   defeitos. Em nenhuma hipótese o Proprietário será responsável por danos
+   diretos, indiretos, incidentais, especiais, consequenciais ou punitivos
+   decorrentes do uso ou impossibilidade de uso do Software.
+
+7. VIGÊNCIA
+
+   Esta licença entra em vigor na data de criação do Software e permanece
+   válida por tempo indeterminado, enquanto subsistirem os direitos autorais
+   nos termos da legislação aplicável.
+
+8. PENALIDADES
+
+   A violação de quaisquer termos desta licença sujeitará o infrator a:
+
+   a) Responsabilidade civil por perdas e danos, incluindo lucros cessantes;
+   b) Responsabilidade criminal nos termos do Art. 12 da Lei nº 9.609/98
+      (detenção de 6 meses a 2 anos, ou multa);
+   c) Indenização por danos morais e materiais;
+   d) Medidas judiciais cabíveis, incluindo busca e apreensão, tutela de
+      urgência e ação inibitória.
+
+9. FORO
+
+   Fica eleito o foro da comarca de domicílio do Proprietário, na República
+   Federativa do Brasil, para dirimir quaisquer controvérsias decorrentes
+   desta licença, com renúncia expressa a qualquer outro, por mais
+   privilegiado que seja.
+
+10. DISPOSIÇÕES FINAIS
+
+    a) Esta licença constitui o acordo integral entre as partes no que diz
+       respeito ao uso do Software;
+    b) A invalidade de qualquer cláusula não afetará as demais;
+    c) A tolerância do Proprietário quanto a qualquer violação não implica
+       renúncia aos seus direitos;
+    d) Versões traduzidas desta licença são fornecidas como cortesia; em
+       caso de conflito, prevalece a versão em português brasileiro.
+
+════════════════════════════════════════════════════════════════════════════════
+
+                          INFORMAÇÕES DO SOFTWARE
+
+    Nome:            CredGestor
+    Versão:          6.0.0
+    Plataforma:      Windows x64 (Electron 41.x)
+    Linguagens:      JavaScript, HTML5, CSS3, SQL
+    Banco de Dados:  SQLite local
+    Criação:         2024
+    Última Versão:   Junho de 2026
+
+════════════════════════════════════════════════════════════════════════════════
+
+                       DECLARAÇÃO DE AUTORIA E TITULARIDADE
+
+    Eu, Carlos Antonio de Oliveira Piquet, declaro ser o autor original
+    e único proprietário de todo o código-fonte, documentação, design de
+    interface e arquitetura do sistema CredGestor.
+
+    Todo o desenvolvimento foi realizado por mim de forma independente,
+    e todos os direitos patrimoniais e morais sobre a obra me pertencem
+    de forma exclusiva e integral.
+
+════════════════════════════════════════════════════════════════════════════════
+
+    Copyright (C) 2024-2026 Carlos Antonio de Oliveira Piquet
+    TODOS OS DIREITOS RESERVADOS / ALL RIGHTS RESERVED
+
+    Nenhuma parte deste software pode ser reproduzida, distribuída ou
+    transmitida por qualquer forma ou meio sem a autorização prévia e
+    por escrito do proprietário.
+
+    No part of this software may be reproduced, distributed, or
+    transmitted in any form or by any means without the prior written
+    permission of the copyright holder.
+
+════════════════════════════════════════════════════════════════════════════════

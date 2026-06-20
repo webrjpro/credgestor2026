@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CredGestor</title>
+
+    <!-- Vendor Bundle (Chart.js, Lucide, XLSX, jsPDF, JSZip, FileSaver) -->
+    <script src="dist-renderer/vendor.bundle.js"></script>
+
+    <!-- Tailwind CSS compilado + estilos customizados -->
+    <link rel="stylesheet" href="dist-renderer/styles.bundle.css">
+
+    <style>
+        /* Estilos customizados agora em dist-renderer/styles.bundle.css */
+        /* Hardening visual da tela de autenticacao */
+        body.auth-locked {
+            overflow: hidden;
+        }
+
+        body.auth-locked>#app-sidebar,
+        body.auth-locked>main {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #auth-overlay.auth-backdrop {
+            background: #0f172a !important;
+            backdrop-filter: none !important;
+        }
+
+        /* Contraste garantido para sino de notificacoes e botoes de fechar */
+        #header-notification-btn {
+            color: #475569;
+        }
+
+        #header-notification-btn:hover {
+            color: #0f172a;
+        }
+
+        #header-notification-btn .lucide-bell,
+        #header-notification-btn [data-lucide="bell"] {
+            stroke-width: 2.25;
+        }
+
+        dialog .lucide-x,
+        #toast .lucide-x,
+        .fixed .lucide-x {
+            color: #475569;
+            stroke-width: 2.35;
+        }
+
+        .dark #header-notification-btn {
+            color: #cbd5e1;
+        }
+
+        .dark #header-notification-btn:hover {
+            color: #ffffff;
+        }
+
+        .dark dialog .lucide-x,
+        .dark #toast .lucide-x,
+        .dark .fixed .lucide-x {
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+
+<body
+    class="auth-locked text-slate-800 h-screen flex flex-col md:flex-row overflow-hidden selection:bg-brand-500 selection:text-white">
+
+    <div id="db-loading"></div>
+
+    <!-- Overlay de Autenticacao do Gestor local -->
+    <div id="auth-overlay" class="auth-backdrop">
+        <div class="auth-card">
+            <!-- Logo Animado -->
+            <div class="flex items-center gap-3 mb-4">
+                <div class="relative group">
+                    <div
+                        class="absolute -inset-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-xl blur opacity-40 group-hover:opacity-70 transition duration-500 animate-pulse">
+                    </div>
+                    <div
+                        class="relative w-12 h-12 rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center border border-slate-700 shadow-2xl">
+                        <i data-lucide="wallet" class="w-6 h-6 text-emerald-400"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="auth-meta">Acesso Restrito</div>
+                    <h3 class="text-lg">CredGestor</h3>
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                Valide suas credenciais para acessar o sistema.
+            </p>
+
+            <div id="auth-error" class="auth-error items-center gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                <span></span>
+            </div>
+            <div id="auth-success" class="auth-ok items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
+                <span></span>
+            </div>
+
+            <form id="auth-form" class="space-y-3">
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">E-mail</label>
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
+                        <input id="auth-user" type="email" required autocomplete="username"
+                            class="w-full input-premium rounded-xl p-2.5 pl-10 text-sm font-medium"
+                            placeholder="gestor@empresa.com">
+                    </div>
+                </div>
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Senha</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
+                        <input id="auth-pass" type="password" required autocomplete="current-password"
+                            class="w-full input-premium rounded-xl p-2.5 pl-10 text-sm font-medium"
+                            placeholder="********">
+                    </div>
+                </div>
+                <button type="submit" id="auth-submit"
+                    class="w-full btn-premium py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Acessar Sistema
+                </button>
+                <div class="text-center mt-3">
+                    <button type="button" id="auth-forgot-btn" onclick="showAuthRecovery()"
+                        class="text-xs text-amber-500 hover:text-amber-400 font-bold transition-colors">
+                        Esqueci minha senha
+                    </button>
+                </div>
+            </form>
+
+            <!-- Formulario de Primeiro Acesso (criar senha) -->
+            <form id="auth-register-form" class="space-y-3 hidden">
+                <div
+                    class="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800 mb-3">
+                    <p class="text-sm text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        Primeiro Acesso
+                    </p>
+                    <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Cadastre suas credenciais para
+                        proteger seus dados.</p>
+                </div>
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Seu
+                        Nome</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
+                        <input id="reg-nome" type="text" required
+                            class="w-full input-premium rounded-xl p-2.5 pl-10 text-sm font-medium"
+                            placeholder="Nome do Gestor">
+                    </div>
+                </div>
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">E-mail</label>
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
+                        <input id="reg-email" type="email" required
+                            class="w-full input-premium rounded-xl p-2.5 pl-10 text-sm font-medium"
+                            placeholder="seu@email.com">
+                    </div>
+                </div>
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Criar
+                        Senha</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
+                        <input id="reg-pass" type="password" required minlength="6"
+                            class="w-full input-premium rounded-xl p-2.5 pl-10 text-sm font-medium"
+                            placeholder="Minimo 6 caracteres">
+                    </div>
+                </div>
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Confirmar
+                        Senha</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
+                        <input id="reg-pass-confirm" type="password" required minlength="6"
+                            class="w-full input-premium rounded-xl p-2.5 pl-10 text-sm font-medium"
+                            placeholder="Repita a senha">
+                    </div>
+                </div>
+                <button type="submit" id="auth-register-submit"
+                    class="w-full btn-premium py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    Criar Acesso Seguro
+                </button>
+            </form>
+
+            <!-- Formulario de Recuperacao (Senha Master / Dev) -->
+            <form id="auth-recovery-form" class="space-y-3 hidden">
+                <div
+                    class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 p-3 rounded-xl border border-amber-200 dark:border-amber-800 mb-3">
+                    <p class="text-sm text-amber-700 dark:text-amber-300 font-bold flex items-center gap-2">
+                        <i data-lucide="key" class="w-4 h-4"></i>
+                        Recuperacao de Acesso
+                    </p>
+                    <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">Digite sua <strong>Senha Master</strong>
+                        (8 caracteres) ou <strong>Senha Desenvolvedor</strong> (11 caracteres) para liberar um novo
+                        cadastro.</p>
+                </div>
+                <div>
+                    <label
+                        class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Senha
+                        de Recuperacao</label>
+                    <div class="relative">
+                        <i data-lucide="key" class="absolute left-3 top-3 w-4 h-4 text-amber-400"></i>
+                        <input id="auth-recovery-pass" type="password" required
+                            class="w-full input-premium rounded-xl p-2.5 pl-10 text-sm font-medium"
+                            placeholder="Senha Master ou Desenvolvedor">
+                    </div>
+                </div>
+                <div id="auth-recovery-feedback" class="hidden p-3 rounded-xl text-sm font-bold"></div>
+                <button type="submit" id="auth-recovery-submit"
+                    class="w-full py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg font-bold text-white"
+                    style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <i data-lucide="unlock" class="w-4 h-4"></i>
+                    Verificar e Liberar Acesso
+                </button>
+                <div class="text-center mt-2">
+                    <button type="button" onclick="showAuthLogin()"
+                        class="text-xs text-slate-400 hover:text-slate-300 font-bold transition-colors">
+                        Voltar ao Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SIDEBAR — Professional Navigation (v4.0)                     -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- Overlay para fechar sidebar no mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden" onclick="toggleMobileSidebar()">
+    </div>
+
+    <aside id="app-sidebar"
+        class="w-full md:w-[17rem] glass-sidebar text-white flex-shrink-0 flex flex-col justify-between shadow-2xl z-50">
+        <div class="overflow-y-auto sidebar-scroll" style="scrollbar-width:thin;scrollbar-color:#334155 transparent;">
+
+            <!-- ── Brand Header ── -->
+            <div class="px-5 pt-5 pb-4 flex items-center gap-3.5">
+                <div class="relative">
+                    <div
+                        class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-900/30">
+                        <i data-lucide="wallet" class="text-white w-[1.1rem] h-[1.1rem]"></i>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="text-[0.95rem] font-extrabold tracking-tight text-white leading-none">CredGestor</h1>
+                    <span class="text-[9px] font-semibold text-cyan-300/60 uppercase tracking-[0.12em] mt-0.5">Gestão de Crédito</span>
+                </div>
+            </div>
+
+            <!-- ── Seção: Principal ── -->
+            <nav class="px-3 mt-1">
+                <div class="sidebar-section-label">
+                    <span class="section-dot bg-emerald-500"></span> Principal
+                </div>
+                <div class="space-y-0.5 mt-1">
+                    <button onclick="router('operacoes')" id="nav-operacoes" class="sidebar-nav-item"
+                        title="Fila de decisões, cobranças, recibos e riscos do dia">
+                        <i data-lucide="command" class="nav-icon text-cyan-400/70"></i>
+                        <span>Central de Operações</span>
+                    </button>
+                    <button onclick="router('dashboard')" id="nav-dashboard" class="sidebar-nav-item"
+                        title="Visão geral financeira">
+                        <i data-lucide="layout-dashboard" class="nav-icon"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button onclick="router('clientes')" id="nav-clientes" class="sidebar-nav-item"
+                        title="Gerenciar todos os clientes">
+                        <i data-lucide="users" class="nav-icon"></i>
+                        <span>Clientes</span>
+                        <span id="nav-clientes-count" class="nav-badge bg-slate-700/80 text-slate-300"></span>
+                    </button>
+                    <button onclick="router('extratos')" id="nav-extratos" class="sidebar-nav-item"
+                        title="Extratos, caixa e movimentações">
+                        <i data-lucide="receipt" class="nav-icon"></i>
+                        <span>Extratos & Caixa</span>
+                    </button>
+                </div>
+
+                <!-- ── Seção: Carteira ── -->
+                <div class="sidebar-section-label mt-5">
+                    <span class="section-dot bg-blue-500"></span> Carteira
+                </div>
+                <div class="space-y-0.5 mt-1">
+                    <button onclick="router('em_aberto')" id="nav-em_aberto" class="sidebar-nav-item"
+                        title="Empréstimos ativos aguardando pagamento">
+                        <i data-lucide="clock" class="nav-icon text-sky-400/70"></i>
+                        <span>Em Aberto</span>
+                        <span id="nav-aberto-count" class="nav-badge bg-sky-900/50 text-sky-300"></span>
+                    </button>
+                    <button onclick="router('inadimplentes')" id="nav-inadimplentes" class="sidebar-nav-item"
+                        title="Clientes com pagamentos atrasados">
+                        <i data-lucide="alert-triangle" class="nav-icon text-red-400/70"></i>
+                        <span>Inadimplentes</span>
+                        <span id="nav-inad-count" class="nav-badge bg-red-900/40 text-red-300"></span>
+                    </button>
+                    <button onclick="router('finalizados')" id="nav-finalizados" class="sidebar-nav-item"
+                        title="Contratos quitados">
+                        <i data-lucide="check-circle-2" class="nav-icon text-emerald-400/70"></i>
+                        <span>Finalizados</span>
+                    </button>
+                </div>
+
+                <!-- ── Seção: Aprovação ── -->
+                <div class="sidebar-section-label mt-5">
+                    <span class="section-dot bg-amber-500"></span> Aprovação
+                </div>
+                <div class="space-y-0.5 mt-1">
+                    <button onclick="router('esteira')" id="nav-esteira" class="sidebar-nav-item"
+                        title="Esteira visual de contratos por etapa">
+                        <i data-lucide="columns-3" class="nav-icon text-cyan-400/70"></i>
+                        <span>Esteira de Contratos</span>
+                    </button>
+                    <button onclick="router('aprovados')" id="nav-aprovados" class="sidebar-nav-item"
+                        title="Contratos aprovados prontos para depósito">
+                        <i data-lucide="badge-check" class="nav-icon text-emerald-400/70"></i>
+                        <span>Aprovados</span>
+                        <span id="nav-aprovados-count" class="nav-badge bg-emerald-900/50 text-emerald-300"></span>
+                    </button>
+                    <button onclick="router('em_analise')" id="nav-em_analise" class="sidebar-nav-item"
+                        title="Contratos aguardando análise do gestor">
+                        <i data-lucide="search" class="nav-icon text-amber-400/70"></i>
+                        <span>Em Análise</span>
+                        <span id="nav-analise-count" class="nav-badge bg-amber-900/50 text-amber-300"></span>
+                    </button>
+                    <button onclick="router('reprovados')" id="nav-reprovados" class="sidebar-nav-item"
+                        title="Contratos reprovados">
+                        <i data-lucide="x-circle" class="nav-icon text-red-400/70"></i>
+                        <span>Reprovados</span>
+                        <span id="nav-reprovados-count" class="nav-badge bg-red-900/40 text-red-300"></span>
+                    </button>
+                    <button onclick="router('arquivo_aprovados')" id="nav-arquivo_aprovados" class="sidebar-nav-item"
+                        title="Histórico de aprovados já impressos">
+                        <i data-lucide="archive" class="nav-icon text-teal-400/70"></i>
+                        <span>Arquivo Aprovados</span>
+                        <span id="nav-arquivo-count" class="nav-badge bg-teal-900/50 text-teal-300"></span>
+                    </button>
+                    <button onclick="router('recibos')" id="nav-recibos" class="sidebar-nav-item"
+                        title="Central de recibos pendentes, entregues e estornados">
+                        <i data-lucide="receipt-text" class="nav-icon text-purple-400/70"></i>
+                        <span>Central de Recibos</span>
+                        <span id="nav-recibos-count" class="nav-badge bg-purple-900/50 text-purple-300 hidden">0</span>
+                    </button>
+                </div>
+
+                <!-- ── Seção: Ferramentas ── -->
+                <div class="sidebar-section-label mt-5">
+                    <span class="section-dot bg-violet-500"></span> Ferramentas
+                </div>
+                <div class="space-y-0.5 mt-1">
+                    <button onclick="abrirDashboardCobranca()" class="sidebar-nav-item"
+                        title="Painel de cobranças do dia">
+                        <i data-lucide="megaphone" class="nav-icon text-orange-400/70"></i>
+                        <span>Cobrança do Dia</span>
+                        <span id="nav-cobranca-count" class="nav-badge bg-orange-500 text-white hidden">0</span>
+                    </button>
+                    <button onclick="abrirBlacklist()" class="sidebar-nav-item"
+                        title="Clientes bloqueados (manual + automático)">
+                        <i data-lucide="shield-ban" class="nav-icon text-red-400/70"></i>
+                        <span>Lista de Bloqueados</span>
+                        <span id="nav-blacklist-count" class="nav-badge bg-red-600 text-white hidden">0</span>
+                    </button>
+                    <button onclick="abrirCalculadoraAvancada()" class="sidebar-nav-item"
+                        title="Simular juros compostos e parcelas">
+                        <i data-lucide="calculator" class="nav-icon text-violet-400/70"></i>
+                        <span>Calculadora</span>
+                    </button>
+                    <button onclick="abrirAgendaCobrancas()" class="sidebar-nav-item" title="Agenda de cobranças">
+                        <i data-lucide="calendar-clock" class="nav-icon text-amber-400/70"></i>
+                        <span>Agenda</span>
+                        <span id="agenda-badge" class="nav-badge bg-red-500 text-white hidden">0</span>
+                    </button>
+                    <button onclick="abrirRelatorios()" class="sidebar-nav-item"
+                        title="Exportar PDF, Excel e relatórios">
+                        <i data-lucide="bar-chart-3" class="nav-icon text-cyan-400/70"></i>
+                        <span>Relatórios</span>
+                    </button>
+                </div>
+
+                <!-- ── Seção: Inteligência ── -->
+                <div class="sidebar-section-label mt-5">
+                    <span class="section-dot bg-cyan-500"></span> Inteligência
+                </div>
+                <div class="space-y-0.5 mt-1">
+                    <button onclick="router('projecao')" id="nav-projecao" class="sidebar-nav-item"
+                        title="Projeção de fluxo de caixa 30/60/90 dias">
+                        <i data-lucide="trending-up" class="nav-icon text-cyan-400/70"></i>
+                        <span>Projeção Financeira</span>
+                    </button>
+                    <button onclick="router('metas')" id="nav-metas" class="sidebar-nav-item"
+                        title="Metas mensais e indicadores de desempenho">
+                        <i data-lucide="target" class="nav-icon text-amber-400/70"></i>
+                        <span>Metas & KPIs</span>
+                    </button>
+                    <button onclick="abrirSimulador()" class="sidebar-nav-item"
+                        title="Simulador de cenários financeiros">
+                        <i data-lucide="flask-conical" class="nav-icon text-purple-400/70"></i>
+                        <span>Simulador E-Se?</span>
+                    </button>
+                    <button onclick="router('auditoria')" id="nav-auditoria" class="sidebar-nav-item"
+                        title="Registro completo de ações do sistema">
+                        <i data-lucide="scroll-text" class="nav-icon text-rose-400/70"></i>
+                        <span>Auditoria</span>
+                    </button>
+                </div>
+
+                <!-- ── Seção: Administração ── -->
+                <div class="sidebar-section-label mt-5">
+                    <span class="section-dot bg-rose-500"></span> Administração
+                </div>
+                <div class="space-y-0.5 mt-1">
+                    <button onclick="router('admin_usuarios')" id="nav-admin_usuarios" class="sidebar-nav-item"
+                        title="Gerenciar usuários e permissões">
+                        <i data-lucide="user-cog" class="nav-icon text-rose-400/70"></i>
+                        <span>Usuários</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- ── Footer ── -->
+        <div class="p-3.5 border-t border-slate-800/40 bg-slate-950/50">
+            <!-- Status + Clock -->
+            <div class="flex items-center justify-between mb-3 px-1">
+                <div class="flex items-center gap-1.5">
+                    <span class="relative flex h-1.5 w-1.5" id="offline-indicator-dot">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-[9px] font-semibold text-emerald-400/80 uppercase tracking-wider"
+                        id="offline-indicator-text">Offline</span>
+                </div>
+                <span class="text-[10px] text-slate-500 font-mono tabular-nums" id="clock-display">00:00</span>
+            </div>
+
+            <!-- Config + Versão -->
+            <button onclick="abrirConfiguracoes()"
+                class="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-extrabold text-white transition-colors rounded-lg bg-slate-800/70 hover:bg-slate-700/80 border border-slate-700/60"
+                title="Configurações e operações">
+                <i data-lucide="settings" class="w-4 h-4 text-cyan-300"></i> Configurações
+            </button>
+            <p class="text-center text-[9px] text-cyan-400 mt-2 font-mono font-bold select-none">CredGestor v6.0.0</p>
+            <p class="text-center text-[8px] text-slate-600 font-mono select-none">Build 2026-05-02 — modo offline local</p>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative" style="background-color: var(--bg-primary);">
+        <!-- Top Bar Glass -->
+        <header
+            class="h-16 backdrop-blur-md border-b flex items-center justify-between px-6 md:px-8 flex-shrink-0 sticky top-0 z-20"
+            style="background-color: var(--card-bg); border-color: var(--border-color);">
+            <div class="flex items-center gap-3">
+                <!-- Hamburger Menu (mobile only) -->
+                <button id="hamburger-btn"
+                    class="md:hidden flex items-center justify-center w-10 h-10 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all"
+                    onclick="toggleMobileSidebar()" aria-label="Menu">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <h2 id="page-title" class="text-lg font-bold tracking-tight" style="color: var(--text-primary);">Visão
+                    Geral</h2>
+                <div
+                    class="hidden md:flex px-2 py-0.5 bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800 text-green-700 dark:text-green-400 text-[10px] font-bold rounded-md uppercase items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Offline
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button onclick="abrirBuscaGlobal()" class="global-search-trigger hidden lg:flex" title="Busca global (Ctrl+K)">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        <span>Buscar</span>
+                        <kbd>Ctrl K</kbd>
+                    </button>
+                    <!-- Contador de Clientes -->
+                    <div
+                        class="hidden md:flex items-center gap-1.5 mr-3 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800">
+                        <i data-lucide="users" class="w-3.5 h-3.5 text-indigo-500"></i>
+                        <span class="text-xs font-extrabold text-indigo-600 dark:text-indigo-400"
+                            id="header-clientes-count">0</span>
+                        <span
+                            class="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase">Clientes</span>
+                    </div>
+                    <!-- Display Saldo Rápido -->
+                    <div class="hidden md:flex flex-col items-end mr-2">
+                        <span class="text-[10px] font-bold uppercase" style="color: var(--text-muted);">Caixa
+                            Disponível</span>
+                        <span class="text-sm font-black text-emerald-600 dark:text-emerald-400" id="header-saldo">R$
+                            0,00</span>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <div class="theme-toggle mr-2" onclick="toggleTheme()" title="Alternar tema claro/escuro"></div>
+
+                    <!-- Notificações -->
+                    <button id="header-notification-btn" onclick="abrirNotificacoes()"
+                        class="relative p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors mr-1"
+                        title="Notificações">
+                        <i data-lucide="bell" class="w-5 h-5 text-slate-500"></i>
+                        <span id="notification-count" class="notification-badge hidden">0</span>
+                    </button>
+
+                    <span id="gestor-nome-display" class="text-xs font-medium hidden md:block"
+                        style="color: var(--text-secondary);">Gestor</span>
+                    <div
+                        class="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold border-2 border-white shadow-lg cursor-pointer hover:shadow-xl hover:scale-105 transition-all">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Container -->
+        <div id="app-content" class="flex-1 overflow-auto p-6 md:p-8 relative scroll-smooth">
+            <!-- Content injected via JS -->
+            <div class="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
+                <div class="relative w-12 h-12">
+                    <div class="absolute top-0 left-0 w-full h-full border-4 border-brand-100 rounded-full"></div>
+                    <div
+                        class="absolute top-0 left-0 w-full h-full border-4 border-brand-500 rounded-full border-t-transparent animate-spin">
+                    </div>
+                </div>
+                <span class="text-sm font-medium animate-pulse">Carregando CredGestor...</span>
+            </div>
+        </div>
+
+        <!-- Toast Notification Ultra Premium -->
+        <div id="toast"
+            class="fixed bottom-6 right-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1) z-50 flex items-center gap-4 border border-slate-700/50 max-w-sm">
+            <div
+                class="toast-icon-wrap bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl p-2 shadow-lg shadow-emerald-500/30">
+                <i data-lucide="check" class="w-4 h-4 text-white"></i>
+            </div>
+            <div class="flex-1">
+                <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-0.5">✓ Sucesso</p>
+                <p id="toast-message" class="text-sm font-medium leading-tight">Operação realizada!</p>
+            </div>
+            <button onclick="document.getElementById('toast').classList.add('translate-y-24', 'opacity-0')"
+                class="text-slate-400 hover:text-white transition-colors" title="Fechar notificação"
+                aria-label="Fechar">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- --- SCRIPTS DO FRONTEND MODULARIZADOS --- -->
+    <script src="js/components/modals.js"></script>
+
+    <script src="js/secure-session.js"></script>
+    <script src="js/core.js"></script>
+    <script src="js/engine.js"></script>
+
+    <!-- Camada de Features (Lógica de Apoio) -->
+    <script src="js/features/auth.js"></script>
+    <script src="js/features/ui-system.js"></script>
+    <script src="js/features/crm-cobranca.js"></script>
+    <script src="js/features/relatorios.js"></script>
+    <script src="js/features/workflow.js"></script>
+    <script src="js/features/product-ux.js"></script>
+
+    <script src="js/intelligence.js"></script>
+    <script src="js/semi-autonomy.js"></script>
+
+    <!-- Camada de Views (Renderização SPA) -->
+    <script src="js/views/dashboard.view.js"></script>
+    <script src="js/views/clientes.view.js"></script>
+    <script src="js/views/emprestimos.view.js"></script>
+    <script src="js/views/filtradas.view.js"></script>
+    <script src="js/views/pagamentos.view.js"></script>
+    <script src="js/views/extratos.view.js"></script>
+    <script src="js/views/admin.view.js"></script>
+
+    <!-- Mobile Sidebar Toggle -->
+    <script>
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('app-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!sidebar || !overlay) return;
+            const isOpen = sidebar.classList.contains('sidebar-open');
+            if (isOpen) {
+                sidebar.classList.remove('sidebar-open');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            } else {
+                sidebar.classList.add('sidebar-open');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        // Fechar sidebar ao clicar em item de navegação (mobile)
+        document.addEventListener('click', function (e) {
+            const navItem = e.target.closest('.sidebar-nav-item');
+            if (navItem && window.innerWidth < 768) {
+                setTimeout(function () { toggleMobileSidebar(); }, 150);
+            }
+        });
+    </script>
+</body>
+
+</html>
