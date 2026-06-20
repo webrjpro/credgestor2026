@@ -1,6 +1,6 @@
 # Guia de Build - Maquina Nova
 
-Este guia gera uma build limpa do CredGestor 6.0.2 para Windows x64.
+Este guia gera uma build limpa do CredGestor 6.0.3 para Windows x64.
 
 Ultima revisao: 2026-06-20
 
@@ -38,14 +38,14 @@ Nao existe instalacao de Portal Web, Supabase, Cloudflare R2 ou servico externo 
 Para mudar a versao:
 
 ```bash
-npm version 6.0.2 --no-git-tag-version
+npm version 6.0.3 --no-git-tag-version
 npm run version:sync
 ```
 
 Exemplo para a proxima versao:
 
 ```bash
-npm version 6.0.3 --no-git-tag-version
+npm version 6.0.4 --no-git-tag-version
 npm run version:sync
 ```
 
@@ -96,7 +96,7 @@ npm run pack:inno
 Resultado esperado:
 
 ```text
-dist/CredGestor-InnoSetup-6.0.2.exe
+dist/CredGestor-InnoSetup-6.0.3.exe
 ```
 
 Tambem sera criada a pasta intermediaria:
@@ -166,7 +166,7 @@ rg -n $patterns -S -g "!node_modules/**" -g "!backend/node_modules/**" -g "!dist
 No `dist/`, o instalador esperado deve ser:
 
 ```text
-CredGestor-InnoSetup-6.0.2.exe
+CredGestor-InnoSetup-6.0.3.exe
 ```
 
 ## Gerar Instalador Com Auto-Update
@@ -180,8 +180,8 @@ npm run build:release
 Resultado esperado:
 
 ```text
-dist/CredGestor-Setup-6.0.2.exe
-dist/CredGestor-Setup-6.0.2.exe.blockmap
+dist/CredGestor-Setup-6.0.3.exe
+dist/CredGestor-Setup-6.0.3.exe.blockmap
 dist/latest.yml
 ```
 
@@ -192,7 +192,7 @@ Esses tres arquivos precisam estar na mesma GitHub Release para o app instalado 
 Depois de alterar a versao e commitar:
 
 ```bash
-git tag v6.0.2
+git tag v6.0.3
 git push origin main --tags
 ```
 

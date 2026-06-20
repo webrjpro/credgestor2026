@@ -1,6 +1,6 @@
 {
   "name": "credgestor",
-  "version": "6.0.2",
+  "version": "6.0.3",
   "description": "CredGestor - Sistema Profissional de Gestao de Credito para Windows",
   "main": "main.js",
   "private": true,
@@ -99,7 +99,7 @@
       ],
       "icon": "assets/icon.ico",
       "artifactName": "CredGestor-Setup-${version}.${ext}",
-      "signAndEditExecutable": false,
+      "signAndEditExecutable": true,
       "verifyUpdateCodeSignature": false
     },
     "nsis": {

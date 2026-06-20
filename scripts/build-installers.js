@@ -326,7 +326,7 @@ async function buildWinUnpacked() {
       win: {
         icon: path.join(ROOT, 'assets', 'icon.ico'),
         artifactName: 'CredGestor-Setup-${version}.${ext}',
-        signAndEditExecutable: false,
+        signAndEditExecutable: true,
         verifyUpdateCodeSignature: false,
       },
     },
@@ -489,7 +489,7 @@ async function buildNsisInstaller() {
       win: {
         icon: path.join(ROOT, 'assets', 'icon.ico'),
         artifactName: 'CredGestor-Setup-${version}.${ext}',
-        signAndEditExecutable: false,
+        signAndEditExecutable: true,
         verifyUpdateCodeSignature: false,
       },
       nsis: {

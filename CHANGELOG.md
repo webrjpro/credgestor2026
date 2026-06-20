@@ -2,7 +2,7 @@
 
 Formato: SemVer.
 
-## [6.0.2] - 2026-06-20
+## [6.0.3] - 2026-06-20
 
 ### Atualizacao - 2026-06-20
 
@@ -24,14 +24,15 @@ Formato: SemVer.
 - Adicionado painel visual de atualizacao no app com progresso de download e acao para reiniciar/instalar.
 - Adicionado workflow `.github/workflows/release.yml` para gerar release Windows automaticamente ao publicar tags `v*`.
 - Corrigida codificacao da tela de acordo de licenca do instalador NSIS usando arquivo ASCII compativel.
-- Instalador Inno atualizado em `dist/CredGestor-InnoSetup-6.0.2.exe`.
+- Corrigido icone oficial do executavel e dos atalhos do instalador NSIS, habilitando edicao do `.exe` pelo electron-builder.
+- Instalador Inno atualizado em `dist/CredGestor-InnoSetup-6.0.3.exe`.
 
 ### Release
 
 - Release limpo do CredGestor para Windows x64, com nome, instalador e metadados padronizados como `CredGestor`.
-- Instalador Inno gerado como `CredGestor-InnoSetup-6.0.2.exe`.
+- Instalador Inno gerado como `CredGestor-InnoSetup-6.0.3.exe`.
 - Remocao de residuos de build e bancos locais de reparo (`scratch/` e `backend/data/`).
-- Atualizacao de documentacao, instalador, interface e pipeline remoto para a versao 6.0.2.
+- Atualizacao de documentacao, instalador, interface e pipeline remoto para a versao 6.0.3.
 
 ### Arquitetura
 
