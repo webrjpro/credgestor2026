@@ -1,9 +1,9 @@
 # Documentacao Tecnica e Arquitetural - CredGestor
 
-**Versao:** 6.0.0  
+**Versao:** 6.0.1
 **Plataforma:** Windows x64  
 **Licenca:** Proprietaria  
-**Status:** Release offline local  
+**Status:** Release offline local com atualizacao remota por GitHub Releases
 **Stack:** Electron 41, Node.js embarcado, Express local, SQLite via better-sqlite3
 **Ultima revisao:** 2026-06-20
 
@@ -59,6 +59,7 @@ Arquivos principais:
 - `js/features/ui-system.js`
 - `js/features/crm-cobranca.js`
 - `js/features/relatorios.js`
+- `js/features/auto-update.js`
 - `js/features/workflow.js`
 - `js/features/product-ux.js`
 - `js/intelligence.js`
@@ -77,7 +78,7 @@ Arquivos principais:
 
 ### Processo Principal
 
-`main.js` cria a janela, aplica politicas de seguranca e encaminha chamadas IPC para o backend local.
+`main.js` cria a janela, aplica politicas de seguranca, encaminha chamadas IPC para o backend local e controla o auto-update via GitHub Releases quando o app esta empacotado.
 
 `main/backend-process.js` inicia e encerra o backend embarcado com Node.js local.
 
@@ -174,13 +175,19 @@ npm run lint
 npm --workspace backend test
 npm run qa
 npm run pack:inno
+npm run build:release
 ```
 
-Artefato oficial da versao 6.0.0:
+Artefatos oficiais da versao 6.0.1:
 
 ```text
-dist/CredGestor-InnoSetup-6.0.0.exe
+dist/CredGestor-InnoSetup-6.0.1.exe
+dist/CredGestor-Setup-6.0.1.exe
+dist/CredGestor-Setup-6.0.1.exe.blockmap
+dist/latest.yml
 ```
+
+O Inno Setup continua sendo o instalador manual tradicional. O instalador NSIS (`CredGestor-Setup-*.exe`) e o canal recomendado para clientes que devem receber atualizacoes automaticamente.
 
 O instalador inclui:
 
@@ -199,6 +206,37 @@ O instalador nao deve incluir:
 - Backups de reparo.
 - Artefatos residuais de nomes anteriores do produto.
 
+## 7.1 Atualizacao Remota
+
+O auto-update usa:
+
+- `electron-updater` no processo principal.
+- `preload.js` expondo `window.electronAPI.updates`.
+- `js/features/auto-update.js` mostrando progresso e acao de reinicio.
+- GitHub Releases no repositorio `webrjpro/credgestor2026`.
+
+Fluxo:
+
+```text
+git tag v6.0.1
+git push origin main --tags
+GitHub Actions gera NSIS + latest.yml
+GitHub Release recebe os artefatos
+App instalado verifica update ao abrir
+App baixa a versao nova
+Usuario reinicia para instalar
+```
+
+Para o auto-update funcionar, a release precisa conter:
+
+```text
+CredGestor-Setup-{version}.exe
+CredGestor-Setup-{version}.exe.blockmap
+latest.yml
+```
+
+Clientes instalados por Inno podem precisar instalar uma vez o NSIS update-ready. Depois disso, as proximas versoes passam a ser entregues pelo proprio app.
+
 ## 8. Validacoes De Release
 
 Antes de entregar:
@@ -215,7 +253,8 @@ Resultado esperado:
 - `npm audit`: 0 vulnerabilidades.
 - `npm run qa`: 100/100.
 - Testes backend: pass.
-- Instalador gerado com nome `CredGestor-InnoSetup-6.0.0.exe`.
+- Instalador Inno gerado com nome `CredGestor-InnoSetup-6.0.1.exe`.
+- Instalador NSIS/update gerado com nome `CredGestor-Setup-6.0.1.exe`.
 
 Para validar rapidamente a execucao local apos mudancas de interface:
 

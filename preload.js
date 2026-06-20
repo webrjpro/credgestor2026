@@ -70,6 +70,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   autoBackup: (state) => ipcRenderer.invoke('auto-backup', state),
   savePhysicalBackup: (state) => ipcRenderer.invoke('save-physical-backup', state),
   chooseBackupDirectory: () => ipcRenderer.invoke('choose-backup-directory'),
+  updates: {
+    getStatus: () => ipcRenderer.invoke('updates:get-status'),
+    check: () => ipcRenderer.invoke('updates:check'),
+    download: () => ipcRenderer.invoke('updates:download'),
+    install: () => ipcRenderer.invoke('updates:install'),
+    onStatus: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const listener = (_event, payload) => callback(payload || {});
+      ipcRenderer.on('updates:status', listener);
+      return () => ipcRenderer.removeListener('updates:status', listener);
+    }
+  },
   isElectron: true,
   onClearSession: (callback) => {
     if (typeof callback !== 'function') return;

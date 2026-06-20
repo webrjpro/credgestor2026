@@ -3,7 +3,7 @@
                          PROPRIETARY SOFTWARE LICENSE
 ════════════════════════════════════════════════════════════════════════════════
 
-                       CredGestor v6.0.0
+                       CredGestor v6.0.1
                     Sistema Profissional de Gestão de Crédito
                     Revisão documental: 20/06/2026
 
@@ -131,7 +131,7 @@ TITULAR DOS DIREITOS / COPYRIGHT HOLDER:
                           INFORMAÇÕES DO SOFTWARE
 
     Nome:            CredGestor
-    Versão:          6.0.0
+    Versão:          6.0.1
     Plataforma:      Windows x64 (Electron 41.x)
     Linguagens:      JavaScript, HTML5, CSS3, SQL
     Banco de Dados:  SQLite local

@@ -12,6 +12,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -75,7 +76,8 @@ function cleanupNsisArtifacts() {
     const lower = entry.toLowerCase();
     const isNsisPartial = lower.endsWith('.nsis.7z');
     const isNsisInstaller = /^credgestor-setup-.*\.(exe|blockmap)$/i.test(entry);
-    if (isNsisPartial || isNsisInstaller) {
+    const isUpdateMetadata = /^latest.*\.ya?ml$/i.test(entry);
+    if (isNsisPartial || isNsisInstaller || isUpdateMetadata) {
       removePathIfExists(path.join(distDir, entry), `artefato NSIS residual/parcial ${entry}`);
     }
   }
@@ -434,6 +436,45 @@ function buildInnoInstaller() {
   log(`PASSO 3 OK - Inno gerado: ${relative(innoOutput)} (${(fs.statSync(innoOutput).size / 1024 / 1024).toFixed(1)} MB)`);
 }
 
+function sha512Base64(filePath) {
+  return crypto.createHash('sha512').update(fs.readFileSync(filePath)).digest('base64');
+}
+
+function writeNsisUpdateMetadata() {
+  const installerName = `CredGestor-Setup-${pkg.version}.exe`;
+  const installerPath = path.join(distDir, installerName);
+  const blockmapPath = `${installerPath}.blockmap`;
+  const latestPath = path.join(distDir, 'latest.yml');
+
+  if (!fs.existsSync(installerPath)) {
+    throw new Error(`NSIS terminou sem gerar o instalador esperado para update: ${relative(installerPath)}`);
+  }
+
+  const installerSize = fs.statSync(installerPath).size;
+  const installerSha512 = sha512Base64(installerPath);
+  const lines = [
+    `version: ${pkg.version}`,
+    'files:',
+    `  - url: ${installerName}`,
+    `    sha512: ${installerSha512}`,
+    `    size: ${installerSize}`,
+  ];
+
+  if (fs.existsSync(blockmapPath)) {
+    lines.push(`    blockMapSize: ${fs.statSync(blockmapPath).size}`);
+  }
+
+  lines.push(
+    `path: ${installerName}`,
+    `sha512: ${installerSha512}`,
+    `releaseDate: '${new Date().toISOString()}'`,
+    ''
+  );
+
+  fs.writeFileSync(latestPath, lines.join('\n'), 'utf8');
+  log(`PASSO 4 OK - metadata de update gerado: ${relative(latestPath)}`);
+}
+
 async function buildNsisInstaller() {
   log('PASSO 4: gerando instalador NSIS sob demanda...');
   cleanupNsisArtifacts();
@@ -464,6 +505,7 @@ async function buildNsisInstaller() {
       },
     },
   }));
+  writeNsisUpdateMetadata();
   log('PASSO 4 OK - NSIS gerado');
 }
 
@@ -478,7 +520,12 @@ function getTarget() {
 
 function writeResult(target) {
   const generated = fs.readdirSync(distDir)
-    .filter(name => /\.(exe|blockmap)$/i.test(name))
+    .filter((name) => {
+      if (/^CredGestor-Setup-.*\.(exe|blockmap)$/i.test(name)) return true;
+      if (/^latest\.ya?ml$/i.test(name)) return true;
+      if ((target === 'inno' || target === 'all') && /^CredGestor-InnoSetup-.*\.exe$/i.test(name)) return true;
+      return false;
+    })
     .sort();
 
   fs.writeFileSync(

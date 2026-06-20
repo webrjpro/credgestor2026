@@ -31,6 +31,7 @@ const { app, BrowserWindow, ipcMain, dialog, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const { autoUpdater } = require('electron-updater');
 
 app.setName('CredGestor');
 
@@ -74,6 +75,17 @@ const SYSTEM_API_RETRY_WAIT_MS = 450;
 const SYSTEM_API_MAX_ATTEMPTS = 4;
 let autonomyServices = null;
 let supervisorTimer = null;
+let updaterInitialized = false;
+let isQuittingForUpdate = false;
+const updateState = {
+  enabled: !isDev,
+  status: isDev ? 'disabled' : 'idle',
+  currentVersion: app.getVersion(),
+  latestVersion: '',
+  percent: 0,
+  error: '',
+  downloaded: false,
+};
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -886,6 +898,167 @@ function setupCSP() {
 }
 
 // ==========================================
+// AUTO UPDATE (GitHub Releases + NSIS)
+// ==========================================
+
+function getUpdateInfoPayload(info = {}) {
+  return {
+    version: info.version || '',
+    releaseDate: info.releaseDate || '',
+    releaseName: info.releaseName || '',
+    releaseNotes: typeof info.releaseNotes === 'string' ? info.releaseNotes.slice(0, 3000) : '',
+  };
+}
+
+function emitUpdateStatus(patch = {}) {
+  Object.assign(updateState, patch);
+  const payload = { ...updateState };
+  for (const win of BrowserWindow.getAllWindows()) {
+    try {
+      win.webContents.send('updates:status', payload);
+    } catch (error) {
+      logSuppressedError('falha ao enviar status de update ao renderer', error);
+    }
+  }
+  return payload;
+}
+
+function getPrimaryWindow() {
+  return BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0] || null;
+}
+
+async function promptInstallDownloadedUpdate(info = {}) {
+  const version = info.version || updateState.latestVersion || 'mais recente';
+  const win = getPrimaryWindow();
+  const result = await dialog.showMessageBox(win, {
+    type: 'info',
+    title: 'Atualizacao do CredGestor',
+    message: `Atualizacao ${version} pronta para instalar`,
+    detail: 'O CredGestor precisa reiniciar para aplicar a nova versao. Os dados locais do cliente permanecem preservados.',
+    buttons: ['Reiniciar e instalar', 'Depois'],
+    defaultId: 0,
+    cancelId: 1,
+    noLink: true,
+  });
+
+  if (result.response === 0) {
+    installDownloadedUpdate();
+  }
+}
+
+function installDownloadedUpdate() {
+  if (isDev || !updateState.downloaded) {
+    return { success: false, error: 'Nenhuma atualizacao baixada.' };
+  }
+
+  isQuittingForUpdate = true;
+  emitUpdateStatus({ status: 'installing', error: '' });
+  setImmediate(() => {
+    try {
+      autoUpdater.quitAndInstall(false, true);
+    } catch (error) {
+      isQuittingForUpdate = false;
+      emitUpdateStatus({ status: 'error', error: error.message || 'Falha ao instalar atualizacao.' });
+    }
+  });
+  return { success: true };
+}
+
+function setupAutoUpdates() {
+  if (updaterInitialized) return;
+  updaterInitialized = true;
+
+  if (isDev) {
+    emitUpdateStatus({ enabled: false, status: 'disabled', error: 'Atualizacao automatica fica ativa apenas no app instalado.' });
+    return;
+  }
+
+  autoUpdater.logger = console;
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = false;
+  autoUpdater.allowDowngrade = false;
+  autoUpdater.allowPrerelease = false;
+  autoUpdater.disableWebInstaller = true;
+  autoUpdater.setFeedURL({
+    provider: 'generic',
+    url: 'https://github.com/webrjpro/credgestor2026/releases/latest/download',
+  });
+
+  autoUpdater.on('checking-for-update', () => {
+    emitUpdateStatus({ status: 'checking', percent: 0, error: '', downloaded: false });
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    emitUpdateStatus({
+      status: 'available',
+      latestVersion: info.version || '',
+      updateInfo: getUpdateInfoPayload(info),
+      percent: 0,
+      error: '',
+      downloaded: false,
+    });
+  });
+
+  autoUpdater.on('update-not-available', (info) => {
+    emitUpdateStatus({
+      status: 'idle',
+      latestVersion: info.version || app.getVersion(),
+      updateInfo: getUpdateInfoPayload(info),
+      percent: 0,
+      error: '',
+      downloaded: false,
+    });
+  });
+
+  autoUpdater.on('download-progress', (progress = {}) => {
+    emitUpdateStatus({
+      status: 'downloading',
+      percent: Number(progress.percent || 0),
+      bytesPerSecond: Number(progress.bytesPerSecond || 0),
+      transferred: Number(progress.transferred || 0),
+      total: Number(progress.total || 0),
+      error: '',
+    });
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    emitUpdateStatus({
+      status: 'downloaded',
+      latestVersion: info.version || updateState.latestVersion,
+      updateInfo: getUpdateInfoPayload(info),
+      percent: 100,
+      error: '',
+      downloaded: true,
+    });
+    promptInstallDownloadedUpdate(info).catch((error) => {
+      logSuppressedError('falha ao exibir dialogo de update baixado', error);
+    });
+  });
+
+  autoUpdater.on('error', (error) => {
+    const message = error?.message || String(error || 'Falha ao verificar atualizacao.');
+    emitUpdateStatus({ status: 'error', error: message, downloaded: false });
+  });
+
+  autoUpdater.on('before-quit-for-update', () => {
+    isQuittingForUpdate = true;
+    performGracefulShutdown('before-quit-for-update').catch((error) => {
+      logSuppressedError('falha no shutdown antes do update', error);
+    });
+  });
+}
+
+function scheduleAutomaticUpdateCheck() {
+  if (isDev) return;
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch((error) => {
+      const message = error?.message || 'Falha ao verificar atualizacao.';
+      emitUpdateStatus({ status: 'error', error: message });
+    });
+  }, 8000);
+}
+
+// ==========================================
 // SYSTEM IPC HANDLERS
 // ==========================================
 
@@ -903,6 +1076,46 @@ ipcMain.handle('get-network-info', () => {
     allAddresses: [],
     offline: true,
   };
+});
+
+ipcMain.handle('updates:get-status', () => {
+  return { ...updateState };
+});
+
+ipcMain.handle('updates:check', async () => {
+  if (isDev) {
+    return { success: false, error: 'Atualizacao automatica fica ativa apenas no app instalado.' };
+  }
+
+  try {
+    setupAutoUpdates();
+    const result = await autoUpdater.checkForUpdates();
+    return { success: true, updateInfo: getUpdateInfoPayload(result?.updateInfo || {}) };
+  } catch (error) {
+    const message = error?.message || 'Falha ao verificar atualizacao.';
+    emitUpdateStatus({ status: 'error', error: message });
+    return { success: false, error: message };
+  }
+});
+
+ipcMain.handle('updates:download', async () => {
+  if (isDev) {
+    return { success: false, error: 'Atualizacao automatica fica ativa apenas no app instalado.' };
+  }
+
+  try {
+    setupAutoUpdates();
+    await autoUpdater.downloadUpdate();
+    return { success: true };
+  } catch (error) {
+    const message = error?.message || 'Falha ao baixar atualizacao.';
+    emitUpdateStatus({ status: 'error', error: message });
+    return { success: false, error: message };
+  }
+});
+
+ipcMain.handle('updates:install', () => {
+  return installDownloadedUpdate();
 });
 
 // ==========================================
@@ -934,7 +1147,9 @@ app.whenReady().then(async () => {
     }
   }, 10 * 60 * 1000);
 
+  setupAutoUpdates();
   createWindow();
+  scheduleAutomaticUpdateCheck();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -962,6 +1177,10 @@ async function performGracefulShutdown(reason = 'before-quit') {
 }
 
 app.on('before-quit', async (event) => {
+  if (isQuittingForUpdate) {
+    await performGracefulShutdown('before-quit-for-update');
+    return;
+  }
   if (_gracefulShutdownDone) return;
   event.preventDefault();
   await performGracefulShutdown('before-quit');

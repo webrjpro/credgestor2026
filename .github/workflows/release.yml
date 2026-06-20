@@ -1,0 +1,64 @@
+name: CredGestor Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare embedded Node runtime
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $nodeVersion = '22.22.2'
+          $runtimeDir = ".tools\node-v$nodeVersion-win-x64"
+          $zipPath = "$env:RUNNER_TEMP\node-runtime.zip"
+          $extractDir = "$env:RUNNER_TEMP\node-runtime"
+          New-Item -ItemType Directory -Force -Path ".tools" | Out-Null
+          Invoke-WebRequest -Uri "https://nodejs.org/dist/v$nodeVersion/node-v$nodeVersion-win-x64.zip" -OutFile $zipPath
+          Expand-Archive -Path $zipPath -DestinationPath $extractDir -Force
+          if (Test-Path $runtimeDir) { Remove-Item -Recurse -Force $runtimeDir }
+          Move-Item -Path "$extractDir\node-v$nodeVersion-win-x64" -Destination $runtimeDir
+
+      - name: Build update-ready installer
+        run: npm run build:release
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: credgestor-windows-${{ github.ref_name || 'manual' }}
+          path: |
+            dist/CredGestor-Setup-*.exe
+            dist/CredGestor-Setup-*.exe.blockmap
+            dist/latest.yml
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/CredGestor-Setup-*.exe
+            dist/CredGestor-Setup-*.exe.blockmap
+            dist/latest.yml

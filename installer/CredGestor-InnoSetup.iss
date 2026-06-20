@@ -3,11 +3,11 @@
 ;  Script Inno Setup 6.x
 ;  Autor: Carlos Antonio de Oliveira Piquet
 ;  Plataforma: Windows x64 APENAS
-;  v6.0.0 — Offline local
+;  v6.0.1 — Offline local + canal update-ready
 ; ============================================================
 
 #define MyAppName      "CredGestor"
-#define MyAppVersion   "6.0.0"
+#define MyAppVersion   "6.0.1"
 #define MyAppPublisher "Carlos Antonio de Oliveira Piquet"
 #define MyAppURL       ""
 #define MyAppExeName   "CredGestor.exe"
@@ -143,10 +143,11 @@ begin
       if MsgBox(
         'Uma versão anterior (' + OldVersion + ') do CredGestor foi detectada.' + #13#10 +
         'Deseja prosseguir com a atualização para a versão {#MyAppVersion}?' + #13#10 + #13#10 +
-        'NOVIDADES v6.0.0:' + #13#10 +
+        'NOVIDADES v6.0.1:' + #13#10 +
         '• Caixa centralizado em ledger transacional' + #13#10 +
         '• Pagamentos atualizam contrato, caixa, transação e score no backend' + #13#10 +
         '• Lista de Bloqueados com persistência de motivo' + #13#10 +
+        '• Canal NSIS/GitHub Releases para atualizações remotas' + #13#10 +
         '• Build limpo sem resíduos de versões anteriores' + #13#10 + #13#10 +
         'Seus dados serão preservados em:' + #13#10 +
         '%APPDATA%\CredGestor\',

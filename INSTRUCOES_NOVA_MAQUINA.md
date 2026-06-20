@@ -1,6 +1,6 @@
 # Guia de Build - Maquina Nova
 
-Este guia gera uma build limpa do CredGestor 6.0.0 para Windows x64.
+Este guia gera uma build limpa do CredGestor 6.0.1 para Windows x64.
 
 Ultima revisao: 2026-06-20
 
@@ -38,7 +38,14 @@ Nao existe instalacao de Portal Web, Supabase, Cloudflare R2 ou servico externo 
 Para mudar a versao:
 
 ```bash
-npm version 6.0.0 --no-git-tag-version
+npm version 6.0.1 --no-git-tag-version
+npm run version:sync
+```
+
+Exemplo para a proxima versao:
+
+```bash
+npm version 6.0.2 --no-git-tag-version
 npm run version:sync
 ```
 
@@ -89,7 +96,7 @@ npm run pack:inno
 Resultado esperado:
 
 ```text
-dist/CredGestor-InnoSetup-6.0.0.exe
+dist/CredGestor-InnoSetup-6.0.1.exe
 ```
 
 Tambem sera criada a pasta intermediaria:
@@ -159,8 +166,39 @@ rg -n $patterns -S -g "!node_modules/**" -g "!backend/node_modules/**" -g "!dist
 No `dist/`, o instalador esperado deve ser:
 
 ```text
-CredGestor-InnoSetup-6.0.0.exe
+CredGestor-InnoSetup-6.0.1.exe
 ```
+
+## Gerar Instalador Com Auto-Update
+
+Para clientes que devem receber atualizacao automaticamente, gere o instalador NSIS:
+
+```bash
+npm run build:release
+```
+
+Resultado esperado:
+
+```text
+dist/CredGestor-Setup-6.0.1.exe
+dist/CredGestor-Setup-6.0.1.exe.blockmap
+dist/latest.yml
+```
+
+Esses tres arquivos precisam estar na mesma GitHub Release para o app instalado detectar, baixar e instalar a nova versao.
+
+## Publicar Release Remota No GitHub
+
+Depois de alterar a versao e commitar:
+
+```bash
+git tag v6.0.1
+git push origin main --tags
+```
+
+O workflow `.github/workflows/release.yml` roda no GitHub, baixa o Node runtime embarcado, gera o instalador NSIS e publica os artefatos na Release.
+
+Observacao importante: o auto-update funciona a partir do instalador NSIS (`CredGestor-Setup-*`). Instalacoes antigas feitas pelo Inno podem precisar receber essa versao uma vez manualmente; depois disso as proximas atualizacoes passam a chegar pelo app.
 
 Tambem confirme que o app instalado nao fica parado em "Iniciando o servidor local". Se isso ocorrer, verifique se existem estas pastas no pacote:
 

@@ -72,6 +72,16 @@
                             <span class="config-action-copy">Restaurar backup JSON selecionado</span>
                         </span>
                     </button>
+                    <button type="button" onclick="verificarAtualizacoes()"
+                        class="config-action-btn">
+                        <span class="config-action-icon bg-cyan-500/15 text-cyan-200 border-cyan-400/30">
+                            <i data-lucide="download-cloud" class="w-5 h-5"></i>
+                        </span>
+                        <span class="min-w-0 text-left">
+                            <span class="config-action-title">Atualizacoes</span>
+                            <span class="config-action-copy">Verificar nova versao no GitHub Releases</span>
+                        </span>
+                    </button>
                 </div>
             </div>
 

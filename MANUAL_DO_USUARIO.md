@@ -1,4 +1,4 @@
-# Manual do Usuario - CredGestor 6.0.0
+# Manual do Usuario - CredGestor 6.0.1
 
 Ultima revisao: 2026-06-20
 
@@ -10,7 +10,7 @@ Os dados ficam no computador onde o programa esta instalado.
 
 ## Instalacao
 
-1. Execute `CredGestor-InnoSetup-6.0.0.exe`.
+1. Execute `CredGestor-InnoSetup-6.0.1.exe` ou `CredGestor-Setup-6.0.1.exe`.
 2. Escolha a pasta de instalacao.
 3. Marque os atalhos desejados.
 4. Abra o CredGestor pelo atalho criado.
@@ -189,9 +189,22 @@ Faca backup regularmente:
 
 Backups possuem verificacao de integridade.
 
+## Atualizacao Automatica
+
+Quando instalado pelo pacote update-ready (`CredGestor-Setup-*`), o CredGestor verifica novas versoes ao abrir.
+
+Se existir uma versao nova:
+
+1. O download acontece em segundo plano.
+2. O app mostra o progresso no canto inferior.
+3. Quando terminar, aparece a opcao para reiniciar.
+4. Ao reiniciar, a nova versao e instalada.
+
+Os dados locais, login, clientes, contratos, caixa, recibos e historicos ficam preservados.
+
 ## Funciona Sem Internet?
 
-Sim. O CredGestor 6.0.0 foi desenhado para operacao local/offline.
+Sim. O CredGestor 6.0.1 foi desenhado para operacao local/offline.
 
 ## Onde Ficam Os Dados?
 
